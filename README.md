@@ -6,3 +6,5 @@ To play the game you use WASD to move around.
 3 - selects the Watering Can
 4 - Selects the Corn seed
 5 - Selects the tomato seed
+
+
