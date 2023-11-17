@@ -11,7 +11,7 @@ class Overlay:
 
 
         # importing surfaces
-        overlayPath = '../images/overlay/'
+        overlayPath = '../graphics/overlay/'
         # What this does is say that for every tool inside of player tools create a dictionary with the tool being the key and the image with the corresponding path being the value
         self.toolsSurface = {tool: pygame.image.load(f'{overlayPath}{tool}.png').convert_alpha() for tool in player.tools}
         self.seedsSurface = {seed: pygame.image.load(f'{overlayPath}{seed}.png').convert_alpha() for seed in player.seeds}

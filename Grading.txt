@@ -1,0 +1,17 @@
+Worked on by Jackson Henry
+
+Implemented main module to  call delta time and update the display - 10 points
+
+Implemented helpful module that allows me to import all files in a given path - 5 points
+
+Implemented Level Module that controls the camera movement, calling all the updates for
+draw sprites, creates a camera for faking the 3-d, creates all the sprites for the map, and creates a new draw method for drawing all the sprites that is layer dependent - 25 points
+
+Implemented Overlay module that takes whatever the current tool and seed is and displays that in the bottom left of the screen - 10 points
+
+Implemented Player Module that controls all aspects of the player such as tool selection,
+seed seleciton, the players hitbox, and the players movement - 25 points
+
+Implemented the sprite module that creates all the different types of sprites such as
+the ordinary sprite for any that dont have a specific class, the water sprit which includes an animation,
+a spirte for the natrual flowers, and a sprite for the tree - 25 points
