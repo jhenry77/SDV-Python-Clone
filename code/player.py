@@ -4,7 +4,7 @@ from helpful import *
 from timer import Timer
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self,pos,group):
+    def __init__(self,pos,group, collisionSprites,treeSprites,interactionSprites):
         
         # Creation of groups for the sprites
         super().__init__(group)
@@ -17,15 +17,26 @@ class Player(pygame.sprite.Sprite):
 
 
         # basic setting up
+        # Getting the sprite of whatever the current animation state is
         self.image = self.animations[self.status][self.frameIndex]
-        self.rect = self.image.get_rect(center = pos)
+        # Rect for the player sprite
+        self.rect = self.image.get_rect(center = pos)        
         # Location for drawing on screen or Z-Location
         self.z = LAYERS['main']
+
+
+
 
         # player location
         self.direction = pygame.math.Vector2()
         self.pos = pygame.math.Vector2(self.rect.center)
         self.speed = 200
+
+        # collision detection
+        # Hitbox for collision Detection, takes orig rectangle and shrinks it by (w,h)
+        self.hitbox = self.rect.copy().inflate((-120,-70))
+        self.collisionSprites = collisionSprites
+
 
         # timers
         self.timers = {
@@ -43,6 +54,21 @@ class Player(pygame.sprite.Sprite):
         self.seedNum = 0
         self.selectedSeed = self.seeds[self.seedNum]
 
+
+        # Player Inventory
+        self.itemInventory = {
+            'wood' : 0,
+            'corn' : 0,
+            'tomato': 0
+            
+        }
+
+        # Tree cutting
+        self.treeSprites = treeSprites
+        # Sprites for interacting
+        self.interactionSprites = interactionSprites
+        self.sleep = False
+
     def importAssets(self):
         self.animations =  {'up': [],'down': [],'left': [],'right': [],
 						   'right_idle':[],'left_idle':[],'up_idle':[],'down_idle':[],
@@ -52,7 +78,7 @@ class Player(pygame.sprite.Sprite):
 
 
         for animation in self.animations.keys():
-            path = '../images/character/' + animation
+            path = '../graphics/character/' + animation
             self.animations[animation] = importFolder(path)
         
 
@@ -70,11 +96,19 @@ class Player(pygame.sprite.Sprite):
         self.image = self.animations[self.status][int(self.frameIndex)]
     
     def useTool(self):
-        print(self.selectedTool)
+        if self.selectedTool == 'axe':
+            for tree in self.treeSprites:
+                if tree.rect.collidepoint(self.materialLocation):
+                  tree.damage()  
+                
+
     
     def useSeed(self):
         pass
 
+    
+    def getMaterialLocaiton(self):
+        self.materialLocation = self.rect.center + PLAYER_TOOL_OFFSET[self.status.split('_')[0]]
 
     def input(self):
 
@@ -114,6 +148,8 @@ class Player(pygame.sprite.Sprite):
                 self.timers['seedUse'].activate()
                 self.direction = pygame.math.Vector2()
                 self.frameIndex = 0
+
+
             # Click buttons 1-3 to change the active tool
             if playerInput[pygame.K_1]:
                 self.toolNum = 0
@@ -132,11 +168,20 @@ class Player(pygame.sprite.Sprite):
                 self.seedNum = 1
                 self.selectedSeed = self.seeds[self.seedNum]
 
+            if playerInput[pygame.K_RETURN]:
+                activeInteractionSprite = pygame.sprite.spritecollide(self,self.interactionSprites,False)
+                if activeInteractionSprite:
+                    if activeInteractionSprite[0].name == 'Bed':
+                        self.status = 'left'
+                        self.sleep = True
+
     
     
     def runTimers(self):
         for timer in self.timers.values():
             timer.update()
+
+            
     def getStatus(self):
         # Making it so if the player isnt moving then they will play their idle
         if self.direction.magnitude() == 0:
@@ -156,16 +201,54 @@ class Player(pygame.sprite.Sprite):
 
         # Horizontal movement
         self.pos.x += self.direction.x * self.speed * dt
-        self.rect.centerx = self.pos.x
+        self.hitbox.centerx = round(self.pos.x)
+        self.rect.centerx = self.hitbox.centerx
+        self.collisionDetection('horizontal')
+
 
         # Vertical Movement
         self.pos.y += self.direction.y * self.speed * dt
-        self.rect.centery = self.pos.y
+        self.hitbox.centery = round(self.pos.y)
+        self.rect.centery = self.hitbox.centery
+        self.collisionDetection('vertical')
 
 
     def update(self,dt):
+
+
+
         self.input()
         self.getStatus()
+        self.getMaterialLocaiton()
+        self.runTimers()
         self.move(dt)
         self.animate(dt)
-        self.runTimers()
+        
+
+
+    def collisionDetection(self,direction):
+        # Checks every sprite that is in our collisionSprites group
+        for sprite in self.collisionSprites.sprites():
+            # Double checks that the current sprite has a hitbox attribute
+            if hasattr(sprite, 'hitbox'):
+                # Checks to see if that sprite is coliding with our player hitbox
+                if sprite.hitbox.colliderect(self.hitbox):
+                    if direction == 'horizontal':
+                        # Player was moving right durring collision
+                        if self.direction.x > 0:
+                            self.hitbox.right = sprite.hitbox.left
+                        # Player was moving left durring the collision
+                        elif self.direction.x < 0:
+                            self.hitbox.left = sprite.hitbox.right
+                        self.rect.centerx = self.hitbox.centerx
+                        self.pos.x = self.hitbox.centerx
+                    elif direction == 'vertical':
+                        # Player was moving down durring collision
+                        if self.direction.y > 0:
+                            self.hitbox.bottom = sprite.hitbox.top
+                        # Player was moving up durring the collision
+                        elif self.direction.y < 0:
+                            self.hitbox.top = sprite.hitbox.bottom
+                        self.rect.centery = self.hitbox.centery
+                        self.pos.y = self.hitbox.centery
+
