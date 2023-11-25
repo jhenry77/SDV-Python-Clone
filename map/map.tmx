@@ -451,7 +451,11 @@
 </data>
  </layer>
  <objectgroup id="9" name="Trees">
+<<<<<<< HEAD
   <object id="179" name="Large" gid="148" x="1241.33" y="913.167" width="96" height="124"/>
+=======
+  <object id="179" name="Large" gid="148" x="1270" y="906" width="96" height="124"/>
+>>>>>>> 8cd1a09debdd5e768a910e9bc90a06abb8627c66
   <object id="180" name="Large" gid="148" x="1352" y="462" width="96" height="124"/>
   <object id="181" name="Large" gid="148" x="1664" y="816" width="96" height="124"/>
   <object id="182" name="Large" gid="148" x="2192" y="708" width="96" height="124"/>
