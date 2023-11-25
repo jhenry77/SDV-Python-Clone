@@ -58,6 +58,7 @@ class Player(pygame.sprite.Sprite):
         # Player Inventory
         self.itemInventory = {
             'wood' : 0,
+            'apple' : 0,
             'corn' : 0,
             'tomato': 0
             
@@ -67,6 +68,7 @@ class Player(pygame.sprite.Sprite):
         self.treeSprites = treeSprites
         # Sprites for interacting
         self.interactionSprites = interactionSprites
+        # Sleeping Status
         self.sleep = False
 
     def importAssets(self):
@@ -174,6 +176,8 @@ class Player(pygame.sprite.Sprite):
                     if activeInteractionSprite[0].name == 'Bed':
                         self.status = 'left'
                         self.sleep = True
+                    elif activeInteractionSprite[0].name == 'Trader':
+                        pass
 
     
     
@@ -214,7 +218,6 @@ class Player(pygame.sprite.Sprite):
 
 
     def update(self,dt):
-
 
 
         self.input()

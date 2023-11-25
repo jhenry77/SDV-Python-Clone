@@ -7,6 +7,7 @@ from overlay import Overlay
 from sprites import Ordinary,waterSprite,natFlower,Tree,Interactions
 from pytmx.util_pygame import load_pygame
 from helpful import *
+from transition import Transition
 
 class Level:
     def __init__(self):
@@ -17,16 +18,18 @@ class Level:
 
         # Sprite Groups
         self.allSprites = Camera()
+         # Tree Sprites
+        self.treeSprites = pygame.sprite.Group()
         # Collision Sprites
         self.collisionSprites = pygame.sprite.Group()
-        # Tree Sprites
-        self.treeSprites = pygame.sprite.Group()
+       
         # Iteraction sprites
         self.interactionSprites = pygame.sprite.Group()
 
 
         self.setup()
         self.overlay = Overlay(self.player)
+        self.transition = Transition(self.resetDay,self.player)
 
 
 
@@ -41,12 +44,12 @@ class Level:
 
 
 
-        print(self.player.itemInventory)
-        if self.player.sleep:
-            # add code for what happens if the player is asleep
-            pass
+        # print(self.player.itemInventory)
+      
         self.overlay.updateDisplay()
-
+        if self.player.sleep:
+            self.transition.play()
+            
 
     def setup(self):
 
@@ -95,8 +98,10 @@ class Level:
 
         # Player Items such as Player Sprite, Spawn, Trader, Bed
         for playerItems in mapData.get_layer_by_name("Player"):
+            # Sets spawn point
             if playerItems.name == "Start":
                 self.player = Player((playerItems.x,playerItems.y), self.allSprites, self.collisionSprites, self.treeSprites, self.interactionSprites)
+            # Creates the interaction location for the bed
             if playerItems.name == 'Bed':
                 Interactions((playerItems.x,playerItems.y), (playerItems.width, playerItems.height), self.interactionSprites, 'Bed')
                 
@@ -112,6 +117,16 @@ class Level:
 
     def addToInventory(self,item):
         self.player.itemInventory[item] += 1
+
+    def resetDay(self):
+
+
+        # Reset apples
+        for tree in self.treeSprites:
+            for apple in tree.appleSprites.sprites():
+                apple.kill()
+            tree.createApples()
+
     
 # A new class that will handle some of the things that pygame.sprite controls
 class Camera(pygame.sprite.Group):

@@ -3,6 +3,7 @@ import pygame
 from settings import *
 from settings import LAYERS
 from timer import Timer
+from random import randint, choice
 
 class Ordinary(pygame.sprite.Sprite):
     def __init__(self, pos, surface, groups, z = LAYERS['main']):
@@ -26,15 +27,16 @@ class Interactions(Ordinary):
 
 class Particle(Ordinary):
     def __init__(self, pos, surface, groups, z, time = 200):
-
         super().__init__(pos, surface, groups, z)
+
+        print("creating a particle")
 
 
         self.startTime = pygame.time.get_ticks()
         self.duration = time
 
-        #white surface for particles
-        # Masks https://www.youtube.com/watch?v=tJiKYMQJnYg
+
+        # Creating the white surface
         maskSurface = pygame.mask.from_surface(self.image)
         particleSurface = maskSurface.to_surface()
         particleSurface.set_colorkey((0,0,0))
@@ -82,6 +84,8 @@ class natFlower(Ordinary):
 class Tree(Ordinary):
     def  __init__(self, pos, surface, groups, name, inventoryAdd):
         super().__init__(pos,surface,groups,LAYERS['main'])
+        self.name = name
+
         # Health of the tree
         self.health = 5
         # Tells us if the tree is alive
@@ -90,14 +94,42 @@ class Tree(Ordinary):
         self.invalTimer = Timer(200)
 
 
+        # Creating the apples
+        self.applesSurface = pygame.image.load('../graphics/fruit/apple.png')
+        self.applePos = APPLE_POS[name]
+        self.appleSprites = pygame.sprite.Group()
+        self.createApples()
+        
+
+        
+
+
         self.addToInventory = inventoryAdd
 
     def damage(self):
-
+        # Tick health down
         self.health -= 1
+        # Removing apples
+        if len(self.appleSprites.sprites()) > 0:
+            randomApple = choice(self.appleSprites.sprites())
+            Particle(
+                pos = randomApple.rect.topleft,
+                surface=randomApple.image,
+                groups= self.groups()[0],
+                z = LAYERS['fruit'],
+                time = 200)
+            randomApple.kill()
+            self.addToInventory("apple")
 
     def checkHealth(self):
         if self.health <= 0:
+            Particle(
+                pos = self.rect.topleft,
+                surface=self.image,
+                groups= self.groups()[0],
+                z = LAYERS['fruit'],
+                time = 300
+            )
             # if tree is dead then set the trees image to the corresponding stump
             self.image = self.stumpSurface
             # Create a new rect that has an equivalent mid bottom
@@ -107,14 +139,18 @@ class Tree(Ordinary):
             self.alive = False
             self.addToInventory('wood')
 
+    def createApples(self):
+        for pos in self.applePos:
+            if randint(0,10) < 2:
+                x = pos[0] + self.rect.left
+                y = pos[1] + self.rect.top
+                print("creating an apple")
+                Ordinary((x,y), self.applesSurface, [self.appleSprites, self.groups()[0]], z=LAYERS['fruit'])
+
+
 
     def update(self,dt):
         if self.alive:
             self.checkHealth()
 
 
-class Interaction(Ordinary):
-    def __init__(self, pos, size, groups, name):
-        surface = pygame.Surface(size)
-        super().__init__(pos, surface, groups)
-        self.name = name
