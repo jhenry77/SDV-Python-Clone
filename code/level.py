@@ -8,6 +8,7 @@ from sprites import Ordinary,waterSprite,natFlower,Tree,Interactions
 from pytmx.util_pygame import load_pygame
 from helpful import *
 from transition import Transition
+from soil import SoilLayer
 
 class Level:
     def __init__(self):
@@ -26,12 +27,13 @@ class Level:
         # Iteraction sprites
         self.interactionSprites = pygame.sprite.Group()
 
+        
+        self.soilLayer = SoilLayer(self.allSprites)
 
         self.setup()
         self.overlay = Overlay(self.player)
         self.transition = Transition(self.resetDay,self.player)
-
-
+        
 
     def run(self,dt):
         self.displaySurface.fill('black')
@@ -100,7 +102,7 @@ class Level:
         for playerItems in mapData.get_layer_by_name("Player"):
             # Sets spawn point
             if playerItems.name == "Start":
-                self.player = Player((playerItems.x,playerItems.y), self.allSprites, self.collisionSprites, self.treeSprites, self.interactionSprites)
+                self.player = Player((playerItems.x,playerItems.y), self.allSprites, self.collisionSprites, self.treeSprites, self.interactionSprites, self.soilLayer)
             # Creates the interaction location for the bed
             if playerItems.name == 'Bed':
                 Interactions((playerItems.x,playerItems.y), (playerItems.width, playerItems.height), self.interactionSprites, 'Bed')

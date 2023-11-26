@@ -29,7 +29,6 @@ class Particle(Ordinary):
     def __init__(self, pos, surface, groups, z, time = 200):
         super().__init__(pos, surface, groups, z)
 
-        print("creating a particle")
 
 
         self.startTime = pygame.time.get_ticks()
@@ -144,7 +143,6 @@ class Tree(Ordinary):
             if randint(0,10) < 2:
                 x = pos[0] + self.rect.left
                 y = pos[1] + self.rect.top
-                print("creating an apple")
                 Ordinary((x,y), self.applesSurface, [self.appleSprites, self.groups()[0]], z=LAYERS['fruit'])
 
 

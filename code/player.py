@@ -4,7 +4,7 @@ from helpful import *
 from timer import Timer
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self,pos,group, collisionSprites,treeSprites,interactionSprites):
+    def __init__(self,pos,group, collisionSprites,treeSprites,interactionSprites, soilLayer):
         
         # Creation of groups for the sprites
         super().__init__(group)
@@ -68,6 +68,8 @@ class Player(pygame.sprite.Sprite):
         self.treeSprites = treeSprites
         # Sprites for interacting
         self.interactionSprites = interactionSprites
+        # Soil Layer for farming
+        self.soilLayer = soilLayer
         # Sleeping Status
         self.sleep = False
 
@@ -100,8 +102,10 @@ class Player(pygame.sprite.Sprite):
     def useTool(self):
         if self.selectedTool == 'axe':
             for tree in self.treeSprites:
-                if tree.rect.collidepoint(self.materialLocation):
-                  tree.damage()  
+                if tree.rect.collidepoint(self.hitLocation):
+                  tree.damage()
+        if self.selectedTool == 'hoe':
+            self.soilLayer.getHit(self.hitLocation)
                 
 
     
@@ -110,11 +114,11 @@ class Player(pygame.sprite.Sprite):
 
     
     def getMaterialLocaiton(self):
-        self.materialLocation = self.rect.center + PLAYER_TOOL_OFFSET[self.status.split('_')[0]]
+        self.hitLocation = self.rect.center + PLAYER_TOOL_OFFSET[self.status.split('_')[0]]
 
     def input(self):
 
-        if not self.timers['toolUse'].active:
+        if not self.timers['toolUse'].active and not self.sleep:
             playerInput = pygame.key.get_pressed()
             # check player input for up or down ('w' 's')
             if playerInput[pygame.K_w]:
