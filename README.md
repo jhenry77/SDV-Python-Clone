@@ -76,3 +76,9 @@ While following the tutorial, I made the following adjustments:
 ---
 
 *This project is for educational purposes only and is not affiliated with or endorsed by ConcernedApe or Stardew Valley.*
+
+## Contact
+
+For inquiries about this project or employment opportunities, please contact:
+
+[Jackson Henry](mailto:jacksonshenry.cs@gmail.com) | [LinkedIn](https://www.linkedin.com/in/jackson-henry-603b96251/) | [Portfolio](https://jhenry77.github.io/)
